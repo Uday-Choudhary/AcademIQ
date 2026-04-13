@@ -166,103 +166,134 @@ def build_student_profile(row, idx, predicted_grade, classification) -> StudentP
 def inject_custom_css():
     st.markdown("""
     <style>
-        /* Global font */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        /* ── Theme tokens ─────────────────────────────────────────── */
+        :root {
+            --iq-text-primary:    #1e293b;
+            --iq-text-secondary:  #334155;
+            --iq-text-muted:      #64748b;
+            --iq-bg-card:         #f8fafc;
+            --iq-bg-card-alt:     #f1f5f9;
+            --iq-bg-metric:       #ffffff;
+            --iq-border:          #e2e8f0;
+            --iq-link:            #2563eb;
+            --iq-chat-user-bg:    #eff6ff;
+            --iq-chat-user-bd:    #bfdbfe;
+            --iq-chat-ai-bg:      #f0fdf4;
+            --iq-chat-ai-bd:      #bbf7d0;
+            --iq-shadow:          rgba(0,0,0,0.08);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --iq-text-primary:    #f1f5f9;
+                --iq-text-secondary:  #e2e8f0;
+                --iq-text-muted:      #94a3b8;
+                --iq-bg-card:         #1e293b;
+                --iq-bg-card-alt:     #0f172a;
+                --iq-bg-metric:       #1e293b;
+                --iq-border:          #334155;
+                --iq-link:            #60a5fa;
+                --iq-chat-user-bg:    rgba(37,99,235,0.18);
+                --iq-chat-user-bd:    #3b82f6;
+                --iq-chat-ai-bg:      rgba(22,163,74,0.18);
+                --iq-chat-ai-bd:      #22c55e;
+                --iq-shadow:          rgba(0,0,0,0.3);
+            }
+        }
+
+        /* ── Global ───────────────────────────────────────────────── */
         html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
-        /* Main header gradient */
+        /* ── Header ───────────────────────────────────────────────── */
         .main-header {
             background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #db2777 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
 
         .sub-header {
-            color: #64748b;
+            color: var(--iq-text-muted);
             font-size: 1.1rem;
             margin-bottom: 2rem;
         }
 
-        /* Card styling — explicit colors for both themes */
+        /* ── Section headers ──────────────────────────────────────── */
+        .section-header {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--iq-text-primary) !important;
+            margin: 1rem 0 0.5rem 0;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--iq-border);
+        }
+
+        /* ── Report card ──────────────────────────────────────────── */
         .report-card {
-            background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-            border: 1px solid #e2e8f0;
+            background: var(--iq-bg-card);
+            border: 1px solid var(--iq-border);
             border-radius: 12px;
             padding: 1.5rem;
             margin: 1rem 0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            color: #334155 !important;
+            box-shadow: 0 4px 6px -1px var(--iq-shadow);
+            color: var(--iq-text-secondary) !important;
         }
 
+        /* ── Metric cards ─────────────────────────────────────────── */
         .metric-card {
-            background: white;
+            background: var(--iq-bg-metric);
             border-radius: 10px;
             padding: 1rem 1.2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 4px var(--iq-shadow);
             border-left: 4px solid;
             margin-bottom: 0.5rem;
-            color: #334155 !important;
+            color: var(--iq-text-secondary) !important;
         }
-
-        .metric-card strong {
-            color: #1e293b !important;
-        }
-
-        .metric-card a {
-            color: #2563eb !important;
-            text-decoration: underline;
-        }
+        .metric-card strong { color: var(--iq-text-primary) !important; }
+        .metric-card a      { color: var(--iq-link) !important; text-decoration: underline; }
 
         .metric-card.strength { border-left-color: #16a34a; }
         .metric-card.weakness { border-left-color: #dc2626; }
-        .metric-card.plan { border-left-color: #2563eb; }
-        .metric-card.goal { border-left-color: #7c3aed; }
+        .metric-card.plan     { border-left-color: #2563eb; }
+        .metric-card.goal     { border-left-color: #7c3aed; }
         .metric-card.resource { border-left-color: #0891b2; }
 
-        /* Risk badge */
+        /* ── Risk badge ───────────────────────────────────────────── */
         .risk-badge {
             display: inline-block;
             padding: 4px 16px;
             border-radius: 20px;
-            color: white !important;
+            color: #ffffff !important;
             font-weight: 600;
             font-size: 0.85rem;
             letter-spacing: 0.5px;
         }
 
-        /* Section headers */
-        .section-header {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #1e293b !important;
-            margin: 1rem 0 0.5rem 0;
-            padding-bottom: 0.3rem;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        /* Chat styling */
+        /* ── Chat messages ────────────────────────────────────────── */
         .chat-message {
             padding: 0.8rem 1rem;
             border-radius: 10px;
             margin: 0.5rem 0;
             line-height: 1.5;
-            color: #334155 !important;
+            color: var(--iq-text-secondary) !important;
         }
         .chat-user {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
+            background: var(--iq-chat-user-bg);
+            border: 1px solid var(--iq-chat-user-bd);
             margin-left: 2rem;
         }
         .chat-assistant {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
+            background: var(--iq-chat-ai-bg);
+            border: 1px solid var(--iq-chat-ai-bd);
             margin-right: 2rem;
         }
 
-        /* Animated gradient border for AI reports */
+        /* ── AI report gradient border ────────────────────────────── */
         .ai-report-container {
             border: 2px solid transparent;
             border-image: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899) 1;
@@ -271,7 +302,7 @@ def inject_custom_css():
             margin: 1rem 0;
         }
 
-        /* Sidebar styling */
+        /* ── Sidebar ──────────────────────────────────────────────── */
         [data-testid="stSidebar"] {
             background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
         }
@@ -279,47 +310,46 @@ def inject_custom_css():
         [data-testid="stSidebar"] .stMarkdown h1,
         [data-testid="stSidebar"] .stMarkdown h2,
         [data-testid="stSidebar"] .stMarkdown h3 {
-            color: #e2e8f0;
+            color: #e2e8f0 !important;
         }
 
-        /* Smooth transitions */
-        .stExpander, .stButton > button {
-            transition: all 0.2s ease;
-        }
+        /* ── Buttons ──────────────────────────────────────────────── */
+        .stExpander, .stButton > button { transition: all 0.2s ease; }
         .stButton > button:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
+        .stButton > button { color: var(--iq-text-primary) !important; }
 
-        /* Make Generate AI button stand out */
-        .stButton > button {
-            color: #1e293b !important;
-        }
-
-        /* Progress indicator */
+        /* ── Agent pipeline steps ─────────────────────────────────── */
         .agent-step {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             padding: 0.3rem 0;
-            color: #64748b;
+            color: var(--iq-text-muted);
             font-size: 0.9rem;
         }
-        .agent-step.active { color: #2563eb; font-weight: 600; }
-        .agent-step.done { color: #16a34a; }
+        .agent-step.active { color: #3b82f6; font-weight: 600; }
+        .agent-step.done   { color: #16a34a; }
 
-        /* Rule-based recommendation cards */
+        /* ── Rule-based rec cards ─────────────────────────────────── */
         .rule-rec-card {
-            background: white;
-            border: 1px solid #e2e8f0;
+            background: var(--iq-bg-metric);
+            border: 1px solid var(--iq-border);
             border-radius: 10px;
             padding: 1rem 1.2rem;
             margin-bottom: 0.5rem;
-            color: #334155 !important;
+            color: var(--iq-text-secondary) !important;
         }
-        .rule-rec-card strong {
-            color: #1e293b !important;
+        .rule-rec-card strong { color: var(--iq-text-primary) !important; }
+
+        /* ── Pagination info ──────────────────────────────────────── */
+        .page-info {
+            text-align: center;
+            color: var(--iq-text-muted);
         }
+        .page-info strong { color: var(--iq-text-primary); }
     </style>
     """, unsafe_allow_html=True)
 
@@ -622,7 +652,7 @@ def main():
         start_student = st.session_state.current_page * PAGE_SIZE + 1
         end_student = min(start_student + PAGE_SIZE - 1, total_students)
         st.markdown(
-            f"<p style='text-align:center; color:#64748b;'>Showing students <strong>{start_student}–{end_student}</strong> of <strong>{total_students}</strong> &nbsp;|&nbsp; Page {st.session_state.current_page + 1} of {total_pages}</p>",
+            f"<p class='page-info'>Showing students <strong>{start_student}–{end_student}</strong> of <strong>{total_students}</strong> &nbsp;|&nbsp; Page {st.session_state.current_page + 1} of {total_pages}</p>",
             unsafe_allow_html=True,
         )
     with nav_col3:
