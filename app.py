@@ -85,20 +85,21 @@ def preprocess_raw_data(df, scaler, scale_cols):
     if "final_grade" in df.columns:
         df.drop(columns=["final_grade"], inplace=True)
 
-    for col in df.select_dtypes(include="object").columns:
+    str_cols = [c for c in df.columns if not pd.api.types.is_numeric_dtype(df[c])]
+    for col in str_cols:
         df[col] = df[col].astype(str).str.strip().str.lower()
 
     binary_map = {"yes": 1, "no": 0}
     for col in ["internet_access", "extra_activities"]:
-        if col in df.columns and df[col].dtype == "object":
+        if col in df.columns and not pd.api.types.is_numeric_dtype(df[col]):
             df[col] = df[col].map(binary_map).fillna(0).astype(int)
 
     travel_map = {"<15 min": 0, "15-30 min": 1, "30-60 min": 2, ">60 min": 3}
-    if "travel_time" in df.columns and df["travel_time"].dtype == "object":
+    if "travel_time" in df.columns and not pd.api.types.is_numeric_dtype(df["travel_time"]):
         df["travel_time"] = df["travel_time"].map(travel_map).fillna(0).astype(int)
 
     edu_map = {"no formal": 0, "high school": 1, "diploma": 2, "graduate": 3, "post graduate": 4, "phd": 5}
-    if "parent_education" in df.columns and df["parent_education"].dtype == "object":
+    if "parent_education" in df.columns and not pd.api.types.is_numeric_dtype(df["parent_education"]):
         df["parent_education"] = df["parent_education"].map(edu_map).fillna(0).astype(int)
 
     nominal_cols = [c for c in ["gender", "school_type", "study_method"] if c in df.columns]
@@ -546,7 +547,7 @@ def main():
     model, feature_names, scaler, scale_cols = load_model()
 
     # Preprocess
-    has_strings = raw_df.select_dtypes(include="object").shape[1] > 0
+    has_strings = any(not pd.api.types.is_numeric_dtype(raw_df[c]) for c in raw_df.columns)
     if has_strings:
         processed_df = preprocess_raw_data(raw_df, scaler, scale_cols)
     else:
