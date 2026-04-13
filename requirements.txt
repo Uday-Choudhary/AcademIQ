@@ -1,0 +1,15 @@
+streamlit
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+langchain
+langchain-groq
+langchain-community
+langchain-core
+langgraph
+chromadb
+pydantic>=2.0
+fpdf2
+python-dotenv
