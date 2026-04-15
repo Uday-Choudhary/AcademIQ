@@ -1,5 +1,5 @@
 """
-VectoSpace — AI Study Coach
+AcademIQ — AI Study Coach
 Enhanced Streamlit application with LangGraph agentic coaching pipeline.
 
 Features:
@@ -58,6 +58,18 @@ RISK_COLORS = {
     "High-Performing": "#15803D",
     "Exceptional": "#4F46E5",
 }
+
+DEMO_CSV = """\
+student_id,age,gender,school_type,parent_education,study_hours,attendance_percentage,internet_access,travel_time,extra_activities,study_method,math_score,science_score,english_score,overall_score,final_grade
+1,15,male,public,no formal,1.5,63.0,no,>60 min,no,notes,34.0,38.0,32.0,34.7,f
+2,16,female,public,high school,2.5,74.0,yes,15-30 min,no,textbook,50.0,54.0,52.0,52.0,e
+3,17,male,public,diploma,3.5,80.0,yes,30-60 min,yes,notes,63.0,60.0,66.0,63.0,c
+4,16,female,private,graduate,5.0,89.0,yes,<15 min,yes,online,75.0,78.0,80.0,77.7,b
+5,18,male,private,graduate,6.5,95.0,yes,<15 min,yes,mixed,88.0,85.0,87.0,86.7,a
+6,17,female,private,phd,7.5,97.0,yes,<15 min,yes,online,94.0,96.0,93.0,94.3,a
+7,15,male,public,high school,2.0,70.0,yes,>60 min,no,textbook,45.0,48.0,43.0,45.3,e
+8,18,female,public,no formal,1.0,55.0,no,>60 min,no,notes,30.0,33.0,28.0,30.3,f
+"""
 
 
 # ─── MODEL LOADING ───────────────────────────────────────────────────────────
@@ -368,59 +380,59 @@ def render_report(report: StudyCoachReport, student_profile: StudentProfile, idx
     """Render a full AI coaching report in the Streamlit UI."""
 
     # Diagnosis
-    st.markdown('<div class="section-header">🔍 Learning Diagnosis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Learning Diagnosis</div>', unsafe_allow_html=True)
     render_risk_badge(report.risk_level)
     st.markdown(f"<div class='report-card'>{report.learning_diagnosis}</div>", unsafe_allow_html=True)
 
     # Strengths & Weaknesses
     col_s, col_w = st.columns(2)
     with col_s:
-        st.markdown('<div class="section-header">💪 Key Strengths</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Key Strengths</div>', unsafe_allow_html=True)
         for s in report.key_strengths:
-            st.markdown(f'<div class="metric-card strength">✅ {s}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card strength">{s}</div>', unsafe_allow_html=True)
     with col_w:
-        st.markdown('<div class="section-header">⚠️ Key Weaknesses</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Key Weaknesses</div>', unsafe_allow_html=True)
         for w in report.key_weaknesses:
-            st.markdown(f'<div class="metric-card weakness">🔴 {w}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card weakness">{w}</div>', unsafe_allow_html=True)
 
     # Study Plan
-    st.markdown('<div class="section-header">📋 Personalized Study Plan</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Personalized Study Plan</div>', unsafe_allow_html=True)
     for item in report.study_plan:
         st.markdown(
             f'<div class="metric-card plan">'
             f'<strong>Priority {item.priority} — {item.subject}</strong><br>'
-            f'📌 {item.action}<br>'
-            f'⏱️ {item.duration} &nbsp;|&nbsp; 📖 {item.technique}'
+            f'{item.action}<br>'
+            f'{item.duration} &nbsp;|&nbsp; {item.technique}'
             f'</div>',
             unsafe_allow_html=True,
         )
 
     # Weekly Goals
-    st.markdown('<div class="section-header">🎯 Weekly Goals</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Weekly Goals</div>', unsafe_allow_html=True)
     for i, goal in enumerate(report.weekly_goals, 1):
-        st.markdown(f'<div class="metric-card goal">🏁 Goal {i}: {goal}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-card goal">Goal {i}: {goal}</div>', unsafe_allow_html=True)
 
     # Resources
     if report.resources:
-        st.markdown('<div class="section-header">📚 Recommended Resources</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Recommended Resources</div>', unsafe_allow_html=True)
         for resource in report.resources:
             st.markdown(
                 f'<div class="metric-card resource">'
                 f'<strong><a href="{resource.url}" target="_blank">{resource.title}</a></strong> '
                 f'({resource.subject})<br>'
-                f'💡 {resource.why}'
+                f'{resource.why}'
                 f'</div>',
                 unsafe_allow_html=True,
             )
 
     # Motivational Note
-    st.markdown('<div class="section-header">🌟 Motivational Note</div>', unsafe_allow_html=True)
-    st.success(f"💬 *\"{report.motivational_note}\"*")
+    st.markdown('<div class="section-header">Motivational Note</div>', unsafe_allow_html=True)
+    st.success(f"*\"{report.motivational_note}\"*")
 
     # PDF Download
     pdf_bytes = generate_pdf(report, student_profile)
     st.download_button(
-        label="📥 Download PDF Report",
+        label="Download PDF Report",
         data=pdf_bytes,
         file_name=f"study_coach_report_student_{idx + 1}.pdf",
         mime="application/pdf",
@@ -430,7 +442,7 @@ def render_report(report: StudyCoachReport, student_profile: StudentProfile, idx
 
 def render_chat_interface(student_profile: StudentProfile, report: StudyCoachReport, api_key: str, idx: int):
     """Render a chat interface for follow-up questions about a student."""
-    st.markdown('<div class="section-header">💬 Ask Follow-up Questions</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Ask Follow-up Questions</div>', unsafe_allow_html=True)
 
     # Initialize chat history for this student
     chat_key = f"chat_history_{idx}"
@@ -440,9 +452,9 @@ def render_chat_interface(student_profile: StudentProfile, report: StudyCoachRep
     # Display chat history
     for msg in st.session_state[chat_key]:
         css_class = "chat-user" if msg["role"] == "user" else "chat-assistant"
-        icon = "🧑‍🎓" if msg["role"] == "user" else "🤖"
+        label = "You" if msg["role"] == "user" else "Coach"
         st.markdown(
-            f'<div class="chat-message {css_class}">{icon} {msg["content"]}</div>',
+            f'<div class="chat-message {css_class}"><strong>{label}:</strong> {msg["content"]}</div>',
             unsafe_allow_html=True,
         )
 
@@ -456,7 +468,7 @@ def render_chat_interface(student_profile: StudentProfile, report: StudyCoachRep
     if question and st.button("Send", key=f"chat_send_{idx}"):
         st.session_state[chat_key].append({"role": "user", "content": question})
 
-        with st.spinner("🤖 Thinking..."):
+        with st.spinner("Thinking..."):
             try:
                 answer = chat_with_coach(
                     api_key=api_key,
@@ -478,8 +490,8 @@ def render_chat_interface(student_profile: StudentProfile, report: StudyCoachRep
 
 def main():
     st.set_page_config(
-        page_title="VectoSpace — AI Study Coach",
-        page_icon="🎓",
+        page_title="AcademIQ — AI Study Coach",
+        page_icon="",
         layout="wide",
         initial_sidebar_state="expanded",
     )
@@ -488,14 +500,14 @@ def main():
 
     # ─── Sidebar ─────────────────────────────────────────────────────
     with st.sidebar:
-        st.markdown("## 🎓 VectoSpace")
+        st.markdown("## AcademIQ")
         st.markdown("**AI Study Coach**")
         st.markdown("---")
 
         # API Key
         api_key = os.getenv("GROQ_API_KEY", "")
         api_key_input = st.text_input(
-            "🔑 Groq API Key",
+            "Groq API Key",
             value=api_key,
             type="password",
             help="Get your free key at console.groq.com",
@@ -506,15 +518,15 @@ def main():
         ai_enabled = bool(api_key and api_key != "your-groq-api-key-here")
 
         if ai_enabled:
-            st.success("✅ AI coaching enabled")
+            st.success("AI coaching enabled")
         else:
-            st.warning("⚠️ No API key — using rule-based recommendations")
+            st.warning("No API key — using rule-based recommendations")
 
         st.markdown("---")
 
         # Model Selection
         model_choice = st.selectbox(
-            "🧠 LLM Model",
+            "LLM Model",
             ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
             help="Select the LLM model for AI coaching",
         )
@@ -522,7 +534,7 @@ def main():
         st.markdown("---")
         st.markdown("### About")
         st.markdown(
-            "VectoSpace uses a Random Forest ML model for grade prediction "
+            "AcademIQ uses a Random Forest ML model for grade prediction "
             "and a LangGraph AI agent for personalized study coaching."
         )
         st.markdown(
@@ -530,47 +542,67 @@ def main():
         )
 
     # ─── Main Content ────────────────────────────────────────────────
-    st.markdown('<h1 class="main-header">🎓 VectoSpace — AI Study Coach</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">AcademIQ — AI Study Coach</h1>', unsafe_allow_html=True)
     st.markdown(
         '<p class="sub-header">Upload student data for AI-powered grade predictions, personalized coaching, and study recommendations.</p>',
         unsafe_allow_html=True,
     )
 
     # ─── File Upload ─────────────────────────────────────────────────
-    uploaded_file = st.file_uploader(
-        "📂 Upload Student Data (CSV)",
-        type=["csv"],
-        help="Upload a CSV file with columns like age, gender, scores, attendance, etc.",
-    )
+    upload_col, demo_col = st.columns([3, 1])
+    with upload_col:
+        uploaded_file = st.file_uploader(
+            "Upload Student Data (CSV)",
+            type=["csv"],
+            help="Upload a CSV file with columns like age, gender, scores, attendance, etc.",
+        )
+    with demo_col:
+        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+        use_demo = st.button("Try Demo Data", use_container_width=True, help="Load 8 sample students to explore the app without uploading a file")
 
-    if uploaded_file is None:
-        # Landing state
-        st.markdown("---")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown("### 🤖 AI-Powered Analysis")
-            st.markdown("LangGraph agent pipeline diagnoses strengths, weaknesses, and creates personalized study plans.")
-        with col2:
-            st.markdown("### 📊 ML Grade Prediction")
-            st.markdown("Random Forest model predicts grades based on 22 features including scores, attendance, and habits.")
-        with col3:
-            st.markdown("### 📚 Smart Resources")
-            st.markdown("RAG-powered knowledge base recommends real educational resources tailored to each student.")
-        return
-
-    # ─── Process Upload ──────────────────────────────────────────────
-    raw_df = pd.read_csv(uploaded_file)
-    original_df = raw_df.copy()
-
-    # Reset pagination + cached reports when a new file is uploaded
-    file_key = f"loaded_file_{uploaded_file.name}_{uploaded_file.size}"
-    if st.session_state.get("_last_file_key") != file_key:
-        st.session_state["_last_file_key"] = file_key
+    if use_demo:
+        st.session_state["demo_mode"] = True
         st.session_state["current_page"] = 0
         st.session_state["generated_reports"] = {}
         st.session_state["student_profiles"] = {}
 
-    st.subheader("📄 Uploaded Data")
+    demo_mode = st.session_state.get("demo_mode", False) and uploaded_file is None
+
+    if uploaded_file is None and not demo_mode:
+        # Landing state
+        st.markdown("---")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("### AI-Powered Analysis")
+            st.markdown("LangGraph agent pipeline diagnoses strengths, weaknesses, and creates personalized study plans.")
+        with col2:
+            st.markdown("### ML Grade Prediction")
+            st.markdown("Random Forest model predicts grades based on 22 features including scores, attendance, and habits.")
+        with col3:
+            st.markdown("### Smart Resources")
+            st.markdown("RAG-powered knowledge base recommends real educational resources tailored to each student.")
+        return
+
+    # ─── Load data ───────────────────────────────────────────────────
+    if demo_mode:
+        import io
+        raw_df = pd.read_csv(io.StringIO(DEMO_CSV))
+        original_df = raw_df.copy()
+        st.info("Showing demo data — 8 sample students across different performance levels.")
+    else:
+        raw_df = pd.read_csv(uploaded_file)
+        original_df = raw_df.copy()
+        st.session_state["demo_mode"] = False
+
+        # Reset pagination + cached reports when a new file is uploaded
+        file_key = f"loaded_file_{uploaded_file.name}_{uploaded_file.size}"
+        if st.session_state.get("_last_file_key") != file_key:
+            st.session_state["_last_file_key"] = file_key
+            st.session_state["current_page"] = 0
+            st.session_state["generated_reports"] = {}
+            st.session_state["student_profiles"] = {}
+
+    st.subheader("Uploaded Data")
     st.dataframe(raw_df, width="stretch")
 
     # Load model
@@ -595,7 +627,7 @@ def main():
     results_df["Classification"] = [CATEGORY_MAP.get(p, "Unknown") for p in predictions]
 
     # ─── Predictions Table ───────────────────────────────────────────
-    st.subheader("📊 Predictions & Classifications")
+    st.subheader("Predictions & Classifications")
     st.dataframe(results_df, width="stretch")
 
     # Distribution Charts
@@ -610,7 +642,7 @@ def main():
     # ─── CSV Download ────────────────────────────────────────────────
     csv_data = results_df.to_csv(index=False)
     st.download_button(
-        "📥 Download Predictions CSV",
+        "Download Predictions CSV",
         csv_data,
         "predictions.csv",
         "text/csv",
@@ -618,7 +650,7 @@ def main():
 
     # ─── AI Coaching Reports ─────────────────────────────────────────
     st.markdown("---")
-    st.subheader("🤖 AI Study Coaching Reports")
+    st.subheader("AI Study Coaching Reports")
 
     if ai_enabled:
         st.info("Select a student below to generate their AI coaching report. The agent will diagnose, plan, and recommend resources.")
@@ -645,7 +677,7 @@ def main():
     # Page navigation controls
     nav_col1, nav_col2, nav_col3 = st.columns([1, 3, 1])
     with nav_col1:
-        if st.button("◀ Previous", disabled=st.session_state.current_page == 0, key="prev_page"):
+        if st.button("Previous", disabled=st.session_state.current_page == 0, key="prev_page"):
             st.session_state.current_page -= 1
             st.rerun()
     with nav_col2:
@@ -656,7 +688,7 @@ def main():
             unsafe_allow_html=True,
         )
     with nav_col3:
-        if st.button("Next ▶", disabled=st.session_state.current_page >= total_pages - 1, key="next_page"):
+        if st.button("Next", disabled=st.session_state.current_page >= total_pages - 1, key="next_page"):
             st.session_state.current_page += 1
             st.rerun()
 
@@ -669,7 +701,7 @@ def main():
         pred_grade = row["Predicted Grade"]
         classification = row["Classification"]
 
-        with st.expander(f"🎓 Student {idx + 1} — {pred_grade} ({classification})", expanded=False):
+        with st.expander(f"Student {idx + 1} — {pred_grade} ({classification})", expanded=False):
 
             # Build student profile
             profile = build_student_profile(original_df.iloc[idx], idx, pred_grade, classification)
@@ -703,11 +735,11 @@ def main():
                     render_chat_interface(profile, report, api_key, idx)
                 else:
                     # Generate report button
-                    if st.button(f"🤖 Generate AI Coaching Report", key=f"gen_report_{idx}"):
-                        with st.spinner("🔄 Running AI coaching pipeline..."):
+                    if st.button("Generate AI Coaching Report", key=f"gen_report_{idx}"):
+                        with st.spinner("Running AI coaching pipeline..."):
                             # Show pipeline steps
                             status = st.status("AI Agent Pipeline", expanded=True)
-                            status.write("🔍 **Step 1/4:** Diagnosing learning patterns...")
+                            status.write("**Step 1/4:** Diagnosing learning patterns...")
 
                             try:
                                 report = run_coaching_pipeline(
@@ -716,10 +748,10 @@ def main():
                                     model=model_choice,
                                 )
 
-                                status.write("📋 **Step 2/4:** Creating study plan...")
-                                status.write("📚 **Step 3/4:** Finding resources (RAG)...")
-                                status.write("📝 **Step 4/4:** Compiling final report...")
-                                status.update(label="✅ Report generated!", state="complete")
+                                status.write("**Step 2/4:** Creating study plan...")
+                                status.write("**Step 3/4:** Finding resources (RAG)...")
+                                status.write("**Step 4/4:** Compiling final report...")
+                                status.update(label="Report generated!", state="complete")
 
                                 # Store in session state
                                 st.session_state.generated_reports[idx] = report
@@ -728,7 +760,7 @@ def main():
                                 render_report(report, profile, idx)
 
                             except Exception as e:
-                                status.update(label="❌ Error", state="error")
+                                status.update(label="Error", state="error")
                                 st.error(f"Error generating report: {str(e)}")
                                 st.info("Falling back to rule-based recommendations...")
 
@@ -748,7 +780,7 @@ def main():
 
             else:
                 # Rule-based fallback
-                st.markdown("**📋 Rule-Based Recommendations:**")
+                st.markdown("**Rule-Based Recommendations:**")
                 student_data = {
                     "attendance_percentage": row.get("attendance_percentage", 100),
                     "study_hours": row.get("study_hours", 10),
